@@ -271,3 +271,34 @@ Key takeaways:
 *   PDF is not just binary PostScript. Not only that, it's not even necessarily *binary*. Never knew.
 *   The PDF format has some wrinkles and complexities, but at its core it isn't too bad.
 *   When dealing with PDF, utilizing the Core 14 fonts can let you produce simpler and smaller PDF files.
+
+# Addendum
+
+## Validation
+
+The PDF file I produced was not well-formed. Unfortunately, there are not many tools for validating PDFs (there are tools for validating PDF/A, but the only known tool for validating PDF itself is JHOVE.)
+
+I found that most of my validation issues came down to the xref table. While they did not impact PDFium or GhostScript, they _did_ impact Apple's implementation of PDF, so this warranted some attention.
+
+Here is my xref table now.
+
+```
+xref
+0 10
+0000000000 65535 f
+0000000010 00000 n
+0000000076 00000 n
+0000000123 00000 n
+0000000184 00000 n
+0000000349 00000 n
+0000005546 00000 n
+0000005578 00000 n
+0000005686 00000 n
+0000005799 00000 n
+```
+
+The second line specifies the number of entries. Each entry has an offset, a generation number, and a marker 'f' for 'free' or 'n' for 'in use'. The first entry is always at offset 0, generation 65535, and marked 'free' - the rest should point to decimal byte offsets of objects.
+
+Something interesting is that each line needs to be 20 bytes long exactly to allow random access to the xref table. If you are paying close attention, you may have noticed that there are only 18 characters in each entry so far. That's because in this particular part of the PDF document, you must use CRLF line endings! In fact, if you check `PDFReference.pdf` you can confirm that the file universally uses pure LF linefeeds except for the xref table. This suggests to me that PDF files probably originally were written with CRLF linefeeds, and aren't anymore to save space.
+
+With all of that done and some minor tweaking, JHOVE now reports that the PDF file is 'valid and well-formed' and it opens on iOS. However, it's worth noting that iOS is *still* happy with a broken xref table, that is, one written with single-character linefeeds. So PDF parsers are just generally quite lenient!

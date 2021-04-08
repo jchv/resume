@@ -299,7 +299,10 @@ func (d PDFDocument) WritePDF(w io.Writer) error {
 		return err
 	}
 
+	objOffsets := []int{}
+
 	for i, n := range d.Objects {
+		objOffsets = append(objOffsets, c.Count)
 		if _, err := io.WriteString(w, fmt.Sprintf("%d %d obj\n", i+1, 0)); err != nil {
 			return err
 		}
@@ -313,10 +316,27 @@ func (d PDFDocument) WritePDF(w io.Writer) error {
 
 	xrefOffset := c.Count
 
-	if _, err := io.WriteString(w, "xref\n0 0\n\ntrailer\n<<\n/Size 0\n/Root 1 0 R\n>>\n\nstartxref\n"); err != nil {
+	if _, err := io.WriteString(w, fmt.Sprintf("xref\n0 %d\n0000000000 65535 f\r\n", len(objOffsets)+1)); err != nil {
 		return err
 	}
-	if _, err := io.WriteString(w, fmt.Sprintf("%d\n%%%%EOF\n", xrefOffset)); err != nil {
+	for _, offset := range objOffsets {
+		if _, err := io.WriteString(w, fmt.Sprintf("%010d 00000 n\r\n", offset)); err != nil {
+			return err
+		}
+	}
+
+	trailer := PDFDictionary{
+		PDFName("Size"): PDFNumeric(len(objOffsets) + 1),
+		PDFName("Root"): PDFReference(1),
+	}
+	if _, err := io.WriteString(w, "\ntrailer\n"); err != nil {
+		return err
+	}
+	if err := trailer.WritePDF(w); err != nil {
+		return err
+	}
+
+	if _, err := io.WriteString(w, fmt.Sprintf("\n\nstartxref\n%d\n%%%%EOF\n", xrefOffset)); err != nil {
 		return err
 	}
 
