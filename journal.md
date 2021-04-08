@@ -1,7 +1,7 @@
 # 2021-04-06
 The project commenses.
 
-First randevú with the actual PDF format: `PDFReference.pdf`. Provided by Adobe, it describes the PDF format in reasonable detail. The first thing that surprises me is that PDF is largely text-based. Never having actually opened one, I opened `PDFReference.pdf` in Notepad and to my surprise, it was true.
+First rendezvous with the actual PDF format: `PDFReference.pdf`. Provided by Adobe, it describes the PDF format in reasonable detail. The first thing that surprises me is that PDF is largely text-based. Never having actually opened one, I opened `PDFReference.pdf` in Notepad and to my surprise, it was true.
 
 The start of `PDFReference.pdf` looks like this:
 
@@ -10,7 +10,7 @@ The start of `PDFReference.pdf` looks like this:
 %öäüß
 ```
 
-The first line rather clearly signifies the version of the PDF specification. The second line is a bit more perplexing. It turns out it is a canary to detect mangling. The specification recommends putting 4 bytes >= 0x80 here, so that mangling from ASCII-clean transports (such as MIME?) can be detected. It is not required, and presumably if you write an ASCII-clean PDF document it is not useful.
+The first line rather clearly signifies the version of the PDF specification. The second line is a bit more perplexing; it turns out the specification recommends putting a comment with some non-ASCII bytes so that programs which detect whether a file is text or binary will treat PDF files as binary files. It seems to be optional if you are making ASCII-clean PDFs, though it might still be desirable due to a quirk that I discovered much later on.
 
 The next lines are:
 
@@ -301,4 +301,4 @@ The second line specifies the number of entries. Each entry has an offset, a gen
 
 Something interesting is that each line needs to be 20 bytes long exactly to allow random access to the xref table. If you are paying close attention, you may have noticed that there are only 18 characters in each entry so far. That's because in this particular part of the PDF document, you must use CRLF line endings! In fact, if you check `PDFReference.pdf` you can confirm that the file universally uses pure LF linefeeds except for the xref table. This suggests to me that PDF files probably originally were written with CRLF linefeeds, and aren't anymore to save space.
 
-With all of that done and some minor tweaking, JHOVE now reports that the PDF file is 'valid and well-formed' and it opens on iOS. However, it's worth noting that iOS is *still* happy with a broken xref table, that is, one written with single-character linefeeds. So PDF parsers are just generally quite lenient!
+With all of that done and some minor tweaking, JHOVE now reports that the PDF file is 'valid and well-formed' and it opens on iOS. However, it's worth noting that iOS is *still* happy with a broken xref table, that is, one written with single-character linefeeds. So PDF parsers are just generally quite lenient! Despite that, this makes a strong argument for always including the non-ASCII comment at the top of the document. If you treat a PDF as pure text, you could mess up the xref table, which surely will upset some PDF parsers.

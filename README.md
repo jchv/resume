@@ -7,7 +7,7 @@ This repository contains a program that generates my résumé.
 
 Writing a résumé is hard and full of decisions. How do you produce a PDF file anymore, for example?
 
-*   Word processor: It's fine, obviously, if all you want to do is make a PDF and move on. But this is your résumé. You want to update it over time, and maybe you want to have an HTML, or even Markdown representation of it. Updates can be cumbersome as the documents are highly structured, HTML output will be a mess, and something like Markdown is pretty much out of the question. Besides, really can't get any nerd cred for using Word.
+*   Word processor: It's fine, obviously, if all you want to do is make a PDF and move on. But this is your résumé. You want to update it over time, and maybe you want to have an HTML, or even Markdown representation of it. Updates can be cumbersome as the documents are unstructured, HTML output will be a mess, and something like Markdown is pretty much out of the question. Worst of all, really can't get any nerd cred for using Word.
 
 *   L<small><sup>A</sup></small>T<sub>E</sub>X: Now we're playing with power. But let's be honest, does anyone even really *like* using LaTeX? Which TeX distribution should you install? Are you supposed to use PDFLaTeX or XeTeX? What in the hell is an underfull `\hbox`?
 
@@ -16,7 +16,7 @@ Writing a résumé is hard and full of decisions. How do you produce a PDF file 
 ## The Solution
 What if we wrote our résumé in a programming language? The idea is simple. We just structure the information in our résumé as code, and then voila. Well, OK. We have to write some code to generate output. *How hard could it be?*
 
-Armed with the PDF specification, this repository is my attempt to find out. I am working in the Go programming language simply because I find it to be an effective programming language for writing software quickly. Work began on 2021-04-06 and is still on-going as of this writing.
+Armed with the PDF specification, this repository is my attempt to find out. I am working in the Go programming language simply because I find it to be an effective programming language for writing software quickly. Work began on 2021-04-06, and the original goals were accomplished on 2021-04-07. Some improvements may be on-going over time, such as the addition of a layout engine, or better PDF output.
 
 ## Index
 
